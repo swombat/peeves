@@ -1,8 +1,8 @@
 class Peeves
   
-  TEST_URL = 'https://ukvpstest.protx.com/vspgateway/service'
-  LIVE_URL = 'https://ukvps.protx.com/vspgateway/service'
-  SIMULATOR_URL = 'https://ukvpstest.protx.com/VSPSimulator'
+  # TEST_URL = 'https://ukvpstest.protx.com/vspgateway/service'
+  # LIVE_URL = 'https://ukvps.protx.com/vspgateway/service'
+  SIMULATOR_URL = 'https://ukvpstest.protx.com/VSPSimulator/VSPServerGateway.asp?Service=VendorRegisterTx'
 
   APPROVED = 'OK'
   
@@ -15,36 +15,21 @@ class Peeves
     :void => 'VOID'
   }
   
-  CREDIT_CARDS = {
-    :visa => "VISA",
-    :master => "MC",
-    :delta => "DELTA",
-    :solo => "SOLO",
-    :switch => "MAESTRO",
-    :maestro => "MAESTRO",
-    :american_express => "AMEX",
-    :electron => "UKE",
-    :diners_club => "DC",
-    :jcb => "JCB"
-  }
-  
-  ELECTRON = /^(424519|42496[23]|450875|48440[6-8]|4844[1-5][1-5]|4917[3-5][0-9]|491880)\d{10}(\d{3})?$/
-  
   AVS_CVV_CODE = {
     "NOTPROVIDED" => nil, 
     "NOTCHECKED" => 'X',
     "MATCHED" => 'Y',
     "NOTMATCHED" => 'N'
   }
-  
-  self.supported_cardtypes = [:visa, :master, :american_express, :discover, :jcb, :switch, :solo, :maestro, :diners_club]
-  
-  def initialize(mode)
+    
+  def initialize(mode, login)
     @url = case mode
       when :test      : TEST_URL
       when :live      : LIVE_URL
       when :simulator : SIMULATOR_URL
     end
+    @login = login
+    @post = Peeves::PostData.new
   end
   
   def payment(money, options)

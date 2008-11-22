@@ -14,5 +14,4 @@ response = p.payment Peeves::Money.new(1000, "GBP"),
                 :notification_url => "http://edge.woobius.net"
               }
 
-response.vps_transaction_id
-
+puts response.inspect

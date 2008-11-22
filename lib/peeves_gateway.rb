@@ -11,7 +11,8 @@ class PeevesGateway
     :authorization => 'DEFERRED',
     :capture => 'RELEASE',
     :repeat => 'REPEAT',
-    :void => 'VOID'
+    :void => 'VOID',
+    :cancel => 'CANCEL'
   }
   
   AVS_CVV_CODE = {
@@ -65,6 +66,18 @@ class PeevesGateway
     
   end
   
+  # Options:
+  # => transaction_reference (required, String(40))
+  # => vps_transaction_id (required, String(38))
+  # => security_key (required, String(10))
+  def cancel(options)
+    set_default_post_parameters
+    @post["TxType"]               = TRANSACTIONS[:cancel]
+    @post["VendorTxCode"]         = options[:transaction_reference]
+    @post["VPSTxId"]              = options[:vps_transaction_id]
+    @post["SecurityKey"]          = options[:security_key]
+  end
+  
 private
   def url_for(action)
     BASE_URL[@mode] + SERVICE[@mode][action]
@@ -72,7 +85,7 @@ private
 
   def commit!(action)
     response = Peeves::Net::HttpsGateway.new(url_for(action), true, debug?).send({}, @post.to_post_data)
-    Peeves::TransactionRegistrationResponse.new(response)
+    Peeves::ProtxResponse.new(response)
   end
 
   def set_default_post_parameters

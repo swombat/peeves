@@ -42,11 +42,10 @@ module Peeves
         
         http.use_ssl      = true
         
-        #http.verify_mode    = ::OpenSSL::SSL::VERIFY_NONE
+        http.verify_mode    = ::OpenSSL::SSL::VERIFY_NONE
         
         retry_exceptions do 
           begin
-            puts "Trying #{@url}: #{uri.inspect} -- #{data.inspect} -- #{headers.inspect}"
             http.post(uri.request_uri, data, headers).body
           rescue EOFError => e
             raise ConnectionError, "The remote server dropped the connection"

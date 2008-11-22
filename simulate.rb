@@ -5,11 +5,14 @@ $LOAD_PATH << "lib"
 
 ActiveSupport::Dependencies.load_paths = $LOAD_PATH
 
-p = PeevesGateway.new(:simulator, "woobius", )
+p = PeevesGateway.new(:simulator)
 
-puts p.payment Peeves::Money.new(1000, "GBP"),
+response = p.payment Peeves::Money.new(1000, "GBP"),
               {
                 :transaction_reference => Peeves::UniqueId.generate("TEST"),
                 :description => "Test Transaction",
                 :notification_url => "http://edge.woobius.net"
               }
+
+response.vps_transaction_id
+

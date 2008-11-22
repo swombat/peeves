@@ -1,9 +1,6 @@
 class PeevesGateway
-  
-  # TEST_URL = 'https://ukvpstest.protx.com/vspgateway/service'
-  # LIVE_URL = 'https://ukvps.protx.com/vspgateway/service'
-  SIMULATOR_URL = 'https://ukvpstest.protx.com/VSPSimulator/VSPServerGateway.asp?Service=VendorRegisterTx'
-  
+  include Peeves::ProtxServices
+    
   APPROVED = 'OK'
   
   VPS_PROTOCOL = "2.22"
@@ -24,14 +21,16 @@ class PeevesGateway
     "NOTMATCHED" => 'N'
   }
     
-  def initialize(mode, login)
+  def initialize(mode)
     @mode = mode
-    @url = case mode
-      when :test      : TEST_URL
-      when :live      : LIVE_URL
-      when :simulator : SIMULATOR_URL
-    end
-    @login = login
+  end
+  
+  def debug=(value)
+    @no_debug = !value
+  end
+  
+  def debug?
+    @mode == :simulator && !@no_debug
   end
   
   # Options:
@@ -59,7 +58,7 @@ class PeevesGateway
       @post["Basket"]             = options[:basket].to_post_data
     end
     
-    commit!
+    commit! :payment
   end
   
   def repeat(money, options)
@@ -67,8 +66,12 @@ class PeevesGateway
   end
   
 private
-  def commit!
-    response = Peeves::Net::HttpsGateway.new(@url, true, @mode == :simulator).send({}, @post.to_post_data)
+  def url_for(action)
+    BASE_URL[@mode] + SERVICE[@mode][action]
+  end
+
+  def commit!(action)
+    response = Peeves::Net::HttpsGateway.new(url_for(action), true, debug?).send({}, @post.to_post_data)
     Peeves::TransactionRegistrationResponse.new(response)
   end
 

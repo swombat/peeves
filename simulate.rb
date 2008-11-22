@@ -5,8 +5,7 @@ $LOAD_PATH << "lib"
 
 ActiveSupport::Dependencies.load_paths = $LOAD_PATH
 
-p = PeevesGateway.new(:simulator, "woobius")
-
+p = PeevesGateway.new(:simulator, "woobius", )
 
 puts p.payment Peeves::Money.new(1000, "GBP"),
               {

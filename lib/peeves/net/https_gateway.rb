@@ -15,13 +15,18 @@ module Peeves
       OPEN_TIMEOUT = 60
       READ_TIMEOUT = 60
       
-      def initialize(url, retry_safe=false)
+      def initialize(url, retry_safe=false, debug=false)
         @url        = url
         @retry_safe = retry_safe
+        @debug      = debug
       end
       
       def retry_safe?
         @retry_safe
+      end
+      
+      def debug?
+        @debug
       end
       
       def send(headers, data)
@@ -33,7 +38,7 @@ module Peeves
         http.open_timeout = OPEN_TIMEOUT
         http.read_timeout = READ_TIMEOUT
 
-        http.set_debug_output $stdout
+        http.set_debug_output $stdout if debug?
         
         http.use_ssl      = true
         

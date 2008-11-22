@@ -25,6 +25,7 @@ class PeevesGateway
   }
     
   def initialize(mode, login)
+    @mode = mode
     @url = case mode
       when :test      : TEST_URL
       when :live      : LIVE_URL
@@ -67,7 +68,7 @@ class PeevesGateway
   
 private
   def commit!
-    response = Peeves::Net::HttpsGateway.new(@url).send({}, @post.to_post_data)
+    response = Peeves::Net::HttpsGateway.new(@url, true, @mode == :simulator).send({}, @post.to_post_data)
     Peeves::TransactionRegistrationResponse.new(response)
   end
 

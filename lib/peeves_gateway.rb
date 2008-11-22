@@ -1,9 +1,9 @@
-class Peeves
+class PeevesGateway
   
   # TEST_URL = 'https://ukvpstest.protx.com/vspgateway/service'
   # LIVE_URL = 'https://ukvps.protx.com/vspgateway/service'
   SIMULATOR_URL = 'https://ukvpstest.protx.com/VSPSimulator/VSPServerGateway.asp?Service=VendorRegisterTx'
-
+  
   APPROVED = 'OK'
   
   VPS_PROTOCOL = "2.22"
@@ -43,7 +43,7 @@ class Peeves
     set_default_post_parameters
     @post["TxType"]               = TRANSACTIONS[:payment]
     @post["VendorTxCode"]         = options[:transaction_reference][0..39]
-    @post["Amount"]               = money.amount
+    @post["Amount"]               = "%.2f" % money.amount
     @post["Currency"]             = money.currency
     @post["Description"]          = options[:description][0..99]
     @post["NotificationURL"]      = options[:notification_url][0..254]
@@ -67,14 +67,14 @@ class Peeves
   
 private
   def commit!
-    response = ssl_post(url_for(action), post_data(action, parameters))
-    TransactionRegistrationResponse.new(response)
+    response = Peeves::Net::HttpsGateway.new(@url).send({}, @post.to_post_data)
+    Peeves::TransactionRegistrationResponse.new(response)
   end
 
   def set_default_post_parameters
     @post = Peeves::PostData.new
     @post["VPSProtocol"]    = VPS_PROTOCOL
-    @post["Vendor"]         = Peeves::Config.VENDOR
+    @post["Vendor"]         = Peeves::Config::VENDOR
   end
 
   def requires!(hash, *params)

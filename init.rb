@@ -1,2 +1,2 @@
-require 'peeves'
+require 'peeves_gateway'
 

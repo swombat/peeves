@@ -1,10 +1,12 @@
+require 'net/https'
+
 module Peeves
   module Net
 
-    class ConnectionError < PeevesError
+    class ConnectionError < Peeves::Error
     end
 
-    class RetriableConnectionError < PeevesError
+    class RetriableConnectionError < Peeves::Error
     end
 
     class HttpsGateway
@@ -19,23 +21,27 @@ module Peeves
       end
       
       def retry_safe?
-        retry_safe
+        @retry_safe
       end
       
-      def send(headers, args)
+      def send(headers, data)
         headers['Content-Type'] ||= "application/x-www-form-urlencoded"
         
-        uri   = URI.parse(url)
+        uri   = URI.parse(@url)
         
-        http = Net::HTTP.new(uri.host, uri.port)
+        http = ::Net::HTTP.new(uri.host, uri.port)
         http.open_timeout = OPEN_TIMEOUT
         http.read_timeout = READ_TIMEOUT
+
+        http.set_debug_output $stdout
+        
         http.use_ssl      = true
         
-        http.verify_mode    = OpenSSL::SSL::VERIFY_NONE
+        #http.verify_mode    = ::OpenSSL::SSL::VERIFY_NONE
         
         retry_exceptions do 
           begin
+            puts "Trying #{@url}: #{uri.inspect} -- #{data.inspect} -- #{headers.inspect}"
             http.post(uri.request_uri, data, headers).body
           rescue EOFError => e
             raise ConnectionError, "The remote server dropped the connection"
@@ -56,6 +62,7 @@ module Peeves
           yield
         rescue RetriableConnectionError => e
           retries -= 1
+          puts e.inspect
           retry unless retries.zero?
           raise ConnectionError, e.message
         rescue ConnectionError

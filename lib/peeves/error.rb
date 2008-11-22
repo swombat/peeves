@@ -1,4 +1,4 @@
 module Peeves #:nodoc:
-  class PeevesError < StandardError #:nodoc:
+  class Error < StandardError #:nodoc:
   end
 end

@@ -9,7 +9,7 @@ p = PeevesGateway.new(:simulator)
 
 transaction_reference = Peeves::UniqueId.generate("TEST")
 
-response = p.authenticate Peeves::Money.new(1000, "GBP"),
+response = p.payment Peeves::Money.new(1000, "GBP"),
               {
                 :transaction_reference => transaction_reference,
                 :description => "Test Transaction",
@@ -18,8 +18,13 @@ response = p.authenticate Peeves::Money.new(1000, "GBP"),
 
 puts response.inspect
 
-puts p.cancel({
-  :transaction_reference => transaction_reference,
-  :vps_transaction_id => response.vps_transaction_id,
-  :security_key => response.security_key
-}).inspect
+response2 = p.authorise Peeves::Money.new(1000, "GBP"),
+{
+  :transaction_reference => Peeves::UniqueId.generate("TEST"),
+  :description => "Test Authorise",
+  :related_transaction_reference => transaction_reference,
+  :related_vps_transaction_id => response.vps_transaction_id,
+  :related_security_key => response.security_key
+}
+
+puts response2.inspect

@@ -8,9 +8,9 @@ class PeevesGateway
   TRANSACTIONS = {
     :payment          => 'PAYMENT',
     :authenticate     => 'AUTHENTICATE',
+    :authorise        => 'AUTHORISE',
     :deferred         => 'DEFERRED',
     :refund           => 'REFUND',
-    :authorization    => 'DEFERRED',
     :release          => 'RELEASE',
     :repeat           => 'REPEAT',
     :void             => 'VOID',
@@ -37,12 +37,22 @@ class PeevesGateway
     @mode == :simulator && !@no_debug
   end
   
+  # Registers a payment so that the user can enter their details.
+  # Returns a URL that the user must be forwarded to to make the payment. If the process following this request is
+  # followed (i.e. redirect to next_url, user fills in their details, protx notifies server, and server responds with OK)
+  # the settlement will go out the next day, automatically, for the full amount.
   # Options:
   # => transaction_reference (required, String(40))
   # => description (required, String(100))
   # => notification_url (required, String)
   # => billing_data (optional, BillingData)
   # => basket (optional, Basket)
+  # Response:
+  # => status
+  # => status_detail
+  # => vps_transaction_id
+  # => security_key
+  # => next_url
   def payment(money, options)
     add_common TRANSACTIONS[:payment]
     add_registration(money, options)
@@ -52,12 +62,23 @@ class PeevesGateway
     commit! :payment
   end
   
+  # Registers a payment so that the user can enter their details.
+  # Returns a URL that the user must be forwarded to to make the payment. If the process following this request is
+  # followed (i.e. redirect to next_url, user fills in their details, protx notifies server, and server responds with OK)
+  # the settlement will NOT go out the next day. Further "Authorise" requests are required before the user will be
+  # charged.
   # Options:
   # => transaction_reference (required, String(40))
   # => description (required, String(100))
   # => notification_url (required, String)
   # => billing_data (optional, BillingData)
   # => basket (optional, Basket)
+  # Response:
+  # => status
+  # => status_detail
+  # => vps_transaction_id
+  # => security_key
+  # => next_url
   def authenticate(money, options)
     add_common TRANSACTIONS[:authenticate]
     add_registration(money, options)
@@ -65,6 +86,33 @@ class PeevesGateway
     add_basket(options)
     
     commit! :payment
+  end
+  
+  # Registers a payment so that the user can enter their details.
+  # Returns a URL that the user must be forwarded to to make the payment. If the process following this request is
+  # followed (i.e. redirect to next_url, user fills in their details, protx notifies server, and server responds with OK)
+  # the settlement will NOT go out the next day, but a "shadow" will be placed on the account until the deferred payment
+  # is "Released" or "Aborted". Deferred payments are only supposed to be used to add a delay of up to 7 days, to allow
+  # cahrging at the point when the order is shipped.
+  # Options:
+  # => transaction_reference (required, String(40))
+  # => description (required, String(100))
+  # => notification_url (required, String)
+  # => billing_data (optional, BillingData)
+  # => basket (optional, Basket)
+  # Response:
+  # => status
+  # => status_detail
+  # => vps_transaction_id
+  # => security_key
+  # => next_url
+  def deferred(money, options)
+    add_common TRANSACTIONS[:deferred]
+    add_registration(money, options)
+    add_billing(options)
+    add_basket(options)
+    
+    commit! :deferred
   end  
   
   # Submits a repeat transaction.
@@ -89,10 +137,39 @@ class PeevesGateway
     commit! :repeat
   end
   
+  # Authorises a previously authenticated transaction. This can be done multiple times, for amounts adding up to
+  # a maximum of 115% of the authenticated amount.
+  # => transaction_reference (required, String(40))
+  # => description (required, String(100))
+  # => related_transaction_reference (required, String(40))
+  # => related_vps_transaction_id (required, String(38))
+  # => related_security_key (required, String(10))
+  # Response:
+  # => status
+  # => status_detail
+  # => vps_transaction_id
+  # => transaction_authorisation_number
+  # => security_key
+  # => avs_cv2_result
+  # => address_result
+  # => post_code_result
+  # => cv2_result
+  def authorise(money, options)
+    add_common TRANSACTIONS[:authorise]
+    add_related(options)
+    add_registration(money, options)
+    
+    commit! :authorise
+  end
+  
+  # Cancels a previously authenticated transaction.
   # Options:
   # => transaction_reference (required, String(40))
   # => vps_transaction_id (required, String(38))
   # => security_key (required, String(10))
+  # Response:
+  # => status
+  # => status_detail
   def cancel(options)
     add_common TRANSACTIONS[:cancel]
     add_post_processing(options)
@@ -100,7 +177,7 @@ class PeevesGateway
     commit! :cancel
   end
 
-  # Releases (processes for payment) a DEFERRED or REPEATDEFERRED payment.
+  # Releases (processes for payment/settlement) a DEFERRED or REPEATDEFERRED payment.
   # Options:
   # => transaction_reference (required, String(40))
   # => vps_transaction_id (required, String(38))
@@ -169,6 +246,10 @@ class PeevesGateway
     add_registration(money, options)
     
     commit! :refund
+  end
+  
+  def parse_notification(params)
+    Peeves::ProtxResponse.new(params).verify!
   end
   
 private

@@ -71,4 +71,30 @@ describe PeevesGateway do
     end
   end
 
+  describe "receiving a notification" do
+    before(:each) do
+      params = {
+        "Status"=>"OK", 
+        "TxType"=>"PAYMENT", 
+        "VPSTxId"=>"{861A2DB0-E734-4DEB-8F8B-12C47B9ADF3E}", 
+        "VendorTxCode"=>"W-TEST-1227524828.86576-59414", 
+        "GiftAid"=>"0", 
+        "AVSCV2"=>"ALL MATCH", 
+        "TxAuthNo"=>"8661", 
+        "VPSProtocol"=>"2.22", 
+        "CAVV"=>"MNL2CYF4URE47IQNBI6DAH", 
+        "3DSecureStatus"=>"OK", 
+        "VPSSignature"=>"49A6FA9FE0631919D9B1E72ACE57584D", 
+        "CV2Result"=>"MATCHED", 
+        "PostCodeResult"=>"MATCHED", 
+        "AddressResult"=>"MATCHED"
+      }
+      @result = @p.parse_notification(params)
+    end
+
+    it "should be able to parse the notification into a ProtX Response" do
+      @result.is_a?(Peeves::ProtxResponse).should be_true
+    end
+  end
+
 end

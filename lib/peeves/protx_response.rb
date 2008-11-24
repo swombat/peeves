@@ -38,7 +38,8 @@ module Peeves
         "StatusDetail"      => :status_detail,
         "VPSTxId"           => :vps_transaction_id,
         "SecurityKey"       => :security_key,
-        "NextURL"           => :next_url
+        "NextURL"           => :next_url,
+        "TxAuthNo"          => :transaction_authorisation_number
       }
     end
   end

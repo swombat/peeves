@@ -9,7 +9,7 @@ p = PeevesGateway.new(:simulator)
 
 transaction_reference = Peeves::UniqueId.generate("TEST")
 
-response = p.payment Peeves::Money.new(1000, "GBP"),
+response = p.authenticate Peeves::Money.new(1000, "GBP"),
               {
                 :transaction_reference => transaction_reference,
                 :description => "Test Transaction",

@@ -8,7 +8,7 @@ class PeevesGateway
   TRANSACTIONS = {
     :payment          => 'PAYMENT',
     :authenticate     => 'AUTHENTICATE',
-    :deferred         => 'DEFERRED'
+    :deferred         => 'DEFERRED',
     :refund           => 'REFUND',
     :authorization    => 'DEFERRED',
     :release          => 'RELEASE',

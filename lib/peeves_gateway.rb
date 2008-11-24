@@ -1,3 +1,5 @@
+require 'cgi'
+
 class PeevesGateway
   include Peeves::ProtxServices
     
@@ -250,6 +252,12 @@ class PeevesGateway
   
   def parse_notification(params)
     Peeves::ProtxResponse.new(params).verify!
+  end
+  
+  def response(status, redirect_url, status_detail)
+    "Status=#{CGI.escape(status)}\r\n" +
+    "RedirectURL=#{CGI.escape(redirect_url)}\r\n" +
+    "StatusDetail=#{CGI.escape(status_detail)}"
   end
   
 private

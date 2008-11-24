@@ -7,6 +7,7 @@ class PeevesGateway
   
   TRANSACTIONS = {
     :payment => 'PAYMENT',
+    :authenticate => 'AUTHENTICATE',
     :refund => 'REFUND',
     :authorization => 'DEFERRED',
     :capture => 'RELEASE',
@@ -41,26 +42,28 @@ class PeevesGateway
   # => billing_data (optional, BillingData)
   # => basket (optional, Basket)
   def payment(money, options)
-    set_default_post_parameters
-    @post["TxType"]               = TRANSACTIONS[:payment]
-    @post["VendorTxCode"]         = options[:transaction_reference][0..39]
-    @post["Amount"]               = "%.2f" % money.amount
-    @post["Currency"]             = money.currency
-    @post["Description"]          = options[:description][0..99]
-    @post["NotificationURL"]      = options[:notification_url][0..254]
-    unless options[:billing_data].nil?
-      @post["BillingAddress"]     = options[:billing_data].address[0..199]
-      @post["BillingPostCode"]    = options[:billing_data].post_code[0..9]
-      @post["CustomerName"]       = options[:billing_data].name[0..99]
-      @post["CustomerEmail"]      = options[:billing_data].email[0..254]
-      @post["ContactNumber"]      = options[:billing_data].contact_number[0..19]
-    end
-    unless options[:basket].nil?
-      @post["Basket"]             = options[:basket].to_post_data
-    end
+    add_common TRANSACTIONS[:payment]
+    add_registration(money, options)
+    add_billing(options)
+    add_basket(options)
     
     commit! :payment
   end
+  
+  # Options:
+  # => transaction_reference (required, String(40))
+  # => description (required, String(100))
+  # => notification_url (required, String)
+  # => billing_data (optional, BillingData)
+  # => basket (optional, Basket)
+  def authenticate(money, options)
+    add_common TRANSACTIONS[:authenticate]
+    add_registration(money, options)
+    add_billing(options)
+    add_basket(options)
+    
+    commit! :payment
+  end  
   
   def repeat(money, options)
     
@@ -71,11 +74,12 @@ class PeevesGateway
   # => vps_transaction_id (required, String(38))
   # => security_key (required, String(10))
   def cancel(options)
-    set_default_post_parameters
-    @post["TxType"]               = TRANSACTIONS[:cancel]
+    add_common TRANSACTIONS[:cancel]
     @post["VendorTxCode"]         = options[:transaction_reference]
     @post["VPSTxId"]              = options[:vps_transaction_id]
     @post["SecurityKey"]          = options[:security_key]
+    
+    commit! :cancel
   end
   
 private
@@ -88,10 +92,35 @@ private
     Peeves::ProtxResponse.new(response)
   end
 
-  def set_default_post_parameters
+  def add_common(type)
     @post = Peeves::PostData.new
+    @post["TxType"]         = type
     @post["VPSProtocol"]    = VPS_PROTOCOL
     @post["Vendor"]         = Peeves::Config::VENDOR
+  end
+  
+  def add_registration(money, options)
+    @post["VendorTxCode"]         = options[:transaction_reference][0..39]
+    @post["Amount"]               = "%.2f" % money.amount
+    @post["Currency"]             = money.currency
+    @post["Description"]          = options[:description][0..99]
+    @post["NotificationURL"]      = options[:notification_url][0..254]    
+  end
+  
+  def add_billing(options)
+    unless options[:billing_data].nil?
+      @post["BillingAddress"]     = options[:billing_data].address[0..199]
+      @post["BillingPostCode"]    = options[:billing_data].post_code[0..9]
+      @post["CustomerName"]       = options[:billing_data].name[0..99]
+      @post["CustomerEmail"]      = options[:billing_data].email[0..254]
+      @post["ContactNumber"]      = options[:billing_data].contact_number[0..19]
+    end
+  end
+  
+  def add_basket(options)
+    unless options[:basket].nil?
+      @post["Basket"]             = options[:basket].to_post_data
+    end
   end
 
   def requires!(hash, *params)

@@ -30,10 +30,6 @@ module Peeves
       self.send("#{mapping[key] || key}")
     end
 
-    def to_s
-      "#<Peeves::TransactionRegistrationResponse:#{self.object_id} @response='#{@response.gsub("\r\n", "\\r\\n")}' @values=#{@values.to_s}>"
-    end
-
   private
     def mapping
       {

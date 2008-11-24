@@ -6,14 +6,16 @@ class PeevesGateway
   VPS_PROTOCOL = "2.22"
   
   TRANSACTIONS = {
-    :payment => 'PAYMENT',
-    :authenticate => 'AUTHENTICATE',
-    :refund => 'REFUND',
-    :authorization => 'DEFERRED',
-    :capture => 'RELEASE',
-    :repeat => 'REPEAT',
-    :void => 'VOID',
-    :cancel => 'CANCEL'
+    :payment          => 'PAYMENT',
+    :authenticate     => 'AUTHENTICATE',
+    :deferred         => 'DEFERRED'
+    :refund           => 'REFUND',
+    :authorization    => 'DEFERRED',
+    :release          => 'RELEASE',
+    :repeat           => 'REPEAT',
+    :void             => 'VOID',
+    :cancel           => 'CANCEL',
+    :abort            => 'ABORT'
   }
   
   AVS_CVV_CODE = {
@@ -65,8 +67,26 @@ class PeevesGateway
     commit! :payment
   end  
   
+  # Submits a repeat transaction.
+  # Options:
+  # => transaction_reference (required, String(40))
+  # => description (required, String(100))
+  # => related_transaction_reference (required, String(40))
+  # => related_vps_transaction_id (required, String(38))
+  # => related_security_key (required, String(10))
+  # => related_transaction_authorisation_number (required, Long Integer)  
+  # Response:
+  # => status
+  # => status_detail
+  # => vps_transaction_id
+  # => transaction_authorisation_number
+  # => security_key
   def repeat(money, options)
+    add_common TRANSACTIONS[:repeat]
+    add_related(options)
+    add_registration(money, options)
     
+    commit! :repeat
   end
   
   # Options:
@@ -75,11 +95,80 @@ class PeevesGateway
   # => security_key (required, String(10))
   def cancel(options)
     add_common TRANSACTIONS[:cancel]
-    @post["VendorTxCode"]         = options[:transaction_reference]
-    @post["VPSTxId"]              = options[:vps_transaction_id]
-    @post["SecurityKey"]          = options[:security_key]
+    add_post_processing(options)
     
     commit! :cancel
+  end
+
+  # Releases (processes for payment) a DEFERRED or REPEATDEFERRED payment.
+  # Options:
+  # => transaction_reference (required, String(40))
+  # => vps_transaction_id (required, String(38))
+  # => security_key (required, String(10))
+  # => transaction_authorisation_number (required, Long Integer)
+  # Response:
+  # => status
+  # => status_detail
+  def release(money, options)
+    add_common TRANSACTIONS[:release]
+    add_post_processing(options)
+    @post["ReleaseAmount"]        = "%.2f" % money.amount
+    
+    commit! :release
+  end
+  
+  # Voids a previously authorised payment (only possible after receiving the NotificationURL response).
+  # Options:
+  # => transaction_reference (required, String(40))
+  # => vps_transaction_id (required, String(38))
+  # => security_key (required, String(10))
+  # => transaction_authorisation_number (required, Long Integer)
+  # Response:
+  # => status
+  # => status_detail
+  def void(options)
+    add_common TRANSACTIONS[:void]
+    add_post_processing(options)
+    
+    commit! :void
+  end
+  
+  
+  # Aborts (cancels) a DEFERRED payment.
+  # Options:
+  # => transaction_reference (required, String(40))
+  # => vps_transaction_id (required, String(38))
+  # => security_key (required, String(10))
+  # => transaction_authorisation_number (required, Long Integer)  
+  # Response:
+  # => status
+  # => status_detail
+  def abort(options)
+    add_common TRANSACTIONS[:abort]
+    add_post_processing(options)
+    
+    commit! :abort
+  end
+  
+  # Refunds a previously settled transaction.
+  # Options:
+  # => transaction_reference (required, String(40))
+  # => description (required, String(100))
+  # => related_transaction_reference (required, String(40))
+  # => related_vps_transaction_id (required, String(38))
+  # => related_security_key (required, String(10))
+  # => related_transaction_authorisation_number (required, Long Integer)
+  # Response:
+  # => status
+  # => status_detail
+  # => vps_transaction_id
+  # => transaction_authorisation_number
+  def refund(money, options)
+    add_common TRANSACTIONS[:refund]
+    add_related(options)
+    add_registration(money, options)
+    
+    commit! :refund
   end
   
 private
@@ -98,13 +187,27 @@ private
     @post["VPSProtocol"]    = VPS_PROTOCOL
     @post["Vendor"]         = Peeves::Config::VENDOR
   end
+
+  def add_post_processing(options)
+    @post["VendorTxCode"]         = options[:transaction_reference][0..39]
+    @post["VPSTxId"]              = options[:vps_transaction_id][0..37]
+    @post["SecurityKey"]          = options[:security_key][0..9]
+    @post["TxAuthNo"]             = options[:transaction_authorisation_number] unless options[:transaction_authorisation_number].nil?
+  end
+  
+  def add_related(options)
+    @post["RelatedVendorTxCode"]         = options[:related_transaction_reference][0..39]
+    @post["RelatedVPSTxId"]              = options[:related_vps_transaction_id][0..37]
+    @post["RelatedSecurityKey"]          = options[:related_security_key][0..9]
+    @post["RelatedTxAuthNo"]             = options[:related_transaction_authorisation_number] unless options[:transaction_authorisation_number].nil?    
+  end
   
   def add_registration(money, options)
     @post["VendorTxCode"]         = options[:transaction_reference][0..39]
     @post["Amount"]               = "%.2f" % money.amount
     @post["Currency"]             = money.currency
     @post["Description"]          = options[:description][0..99]
-    @post["NotificationURL"]      = options[:notification_url][0..254]    
+    @post["NotificationURL"]      = options[:notification_url][0..254] unless options[:notification_url].nil?
   end
   
   def add_billing(options)

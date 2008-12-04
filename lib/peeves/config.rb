@@ -1,8 +1,6 @@
 module Peeves
   module Config
-    
-    VENDOR = "woobius"
-    
-    
+    VENDOR = "yourvendor"
+    GATEWAY_MODE = :simulator
   end
 end

@@ -27,7 +27,7 @@ class PeevesGateway
     "NOTMATCHED" => 'N'
   }
     
-  def initialize(mode)
+  def initialize(mode=Peeves::Config::GATEWAY_MODE)
     @mode = mode
   end
   
@@ -250,11 +250,11 @@ class PeevesGateway
     commit! :refund
   end
   
-  def parse_notification(params)
+  def self.parse_notification(params)
     Peeves::ProtxResponse.new(params).verify!
   end
   
-  def response(status, redirect_url, status_detail)
+  def self.response(status, redirect_url, status_detail)
     "Status=#{CGI.escape(status)}\r\n" +
     "RedirectURL=#{CGI.escape(redirect_url)}\r\n" +
     "StatusDetail=#{CGI.escape(status_detail)}"

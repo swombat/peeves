@@ -4,7 +4,8 @@ module Peeves
       @response = response
       if @response.is_a?(String)
         response.split("\r\n").each do |line|
-          key, value = line.split("=")
+          key, *value = line.split("=")
+          value = value.join("=")
           self[key] = value
         end
       elsif @response.is_a?(Hash)
@@ -49,6 +50,10 @@ module Peeves
       raise Peeves::Error, "MD5 appears to have been tampered with! (#{md5.hexdigest} != #{self.vps_signature})" unless md5.hexdigest == self.vps_signature
 
       self
+    end
+    
+    def approved?
+      self.status == PeevesGateway::APPROVED
     end
 
   private

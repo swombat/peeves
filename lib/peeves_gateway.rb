@@ -255,9 +255,9 @@ class PeevesGateway
   end
   
   def self.response(status, redirect_url, status_detail)
-    "Status=#{CGI.escape(status)}\r\n" +
-    "RedirectURL=#{CGI.escape(redirect_url)}\r\n" +
-    "StatusDetail=#{CGI.escape(status_detail)}"
+    "Status=#{status}\r\n" +
+    "RedirectURL=#{redirect_url}\r\n" +
+    "StatusDetail=#{status_detail}"
   end
   
 private

@@ -5,7 +5,7 @@ class PeevesGateway
     
   APPROVED = 'OK'
   
-  VPS_PROTOCOL = "2.22"
+  VPS_PROTOCOL = "2.23"
   
   TRANSACTIONS = {
     :payment          => 'PAYMENT',
@@ -58,7 +58,7 @@ class PeevesGateway
   def payment(money, options)
     add_common TRANSACTIONS[:payment]
     add_registration(money, options)
-    add_billing(options)
+    add_customer(options)
     add_basket(options)
     
     commit! :payment
@@ -82,9 +82,9 @@ class PeevesGateway
   # => security_key
   # => next_url
   def authenticate(money, options)
-    add_common TRANSACTIONS[:authenticate]
+    add_common(TRANSACTIONS[:authenticate])
     add_registration(money, options)
-    add_billing(options)
+    add_customer(options)
     add_basket(options)
     
     commit! :payment
@@ -111,7 +111,7 @@ class PeevesGateway
   def deferred(money, options)
     add_common TRANSACTIONS[:deferred]
     add_registration(money, options)
-    add_billing(options)
+    add_customer(options)
     add_basket(options)
     
     commit! :deferred
@@ -132,7 +132,7 @@ class PeevesGateway
   # => transaction_authorisation_number
   # => security_key
   def repeat(money, options)
-    add_common TRANSACTIONS[:repeat]
+    add_common(TRANSACTIONS[:repeat])
     add_related(options)
     add_registration(money, options)
     
@@ -206,7 +206,7 @@ class PeevesGateway
   # => status
   # => status_detail
   def void(options)
-    add_common TRANSACTIONS[:void]
+    add_common(TRANSACTIONS[:void])
     add_post_processing(options)
     
     commit! :void
@@ -223,7 +223,7 @@ class PeevesGateway
   # => status
   # => status_detail
   def abort(options)
-    add_common TRANSACTIONS[:abort]
+    add_common(TRANSACTIONS[:abort])
     add_post_processing(options)
     
     commit! :abort
@@ -243,7 +243,7 @@ class PeevesGateway
   # => vps_transaction_id
   # => transaction_authorisation_number
   def refund(money, options)
-    add_common TRANSACTIONS[:refund]
+    add_common(TRANSACTIONS[:refund])
     add_related(options)
     add_registration(money, options)
     
@@ -299,13 +299,37 @@ private
     @post["NotificationURL"]      = options[:notification_url][0..254] unless options[:notification_url].nil?
   end
   
+  def add_customer(options)
+    unless options[:customer_data].nil?
+      @post["CustomerEMail"]     = options[:customer_data][:email]
+      add_billing(options[:customer_data])
+      add_delivery(options[:customer_data])
+    end
+  end
+
   def add_billing(options)
-    unless options[:billing_data].nil?
-      @post["BillingAddress"]     = options[:billing_data].address[0..199]
-      @post["BillingPostCode"]    = options[:billing_data].post_code[0..9]
-      @post["CustomerName"]       = options[:billing_data].name[0..99]
-      @post["CustomerEmail"]      = options[:billing_data].email[0..254]
-      @post["ContactNumber"]      = options[:billing_data].contact_number[0..19]
+    unless options[:billing].nil?
+      # removed character limitation, as they should be enforced in view
+      @post["BillingSurname"]     = options[:billing].surname
+      @post["BillingFirstnames"]  = options[:billing].firstnames
+      @post["BillingAddress1"]    = options[:billing].address1
+      @post["BillingAddress2"]    = options[:billing].address2
+      @post["BillingCity"]        = options[:billing].city
+      @post["BillingPostCode"]    = options[:billing].post_code
+      @post["BillingCountry"]     = options[:billing].country
+    end
+  end
+
+  def add_delivery(options)
+    unless options[:delivery].nil?
+      # removed character limitation, as they should be enforced in view
+      @post["DeliverySurname"]     = options[:delivery].surname
+      @post["DeliveryFirstnames"]  = options[:delivery].firstnames
+      @post["DeliveryAddress1"]    = options[:delivery].address1
+      @post["DeliveryAddress2"]    = options[:delivery].address2
+      @post["DeliveryCity"]        = options[:delivery].city
+      @post["DeliveryPostCode"]    = options[:delivery].post_code
+      @post["DeliveryCountry"]     = options[:delivery].country
     end
   end
   

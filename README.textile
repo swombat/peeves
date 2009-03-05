@@ -1,0 +1,12 @@
+h1. Protx VSP Server
+
+h2. Introduction
+
+Note that this is mostly a documentation fork of "swombat/peeves":http://github.com/swombat/peeves/tree.
+
+Protx is an UK payment gateway. You can find more information on their VPS Server service "here":http://techsupport.protx.com/vspservercustom.asp.
+
+h2. Setup and Installation
+
+Put your *vendor name* into <pre>lib/peeves/config.rb</pre>.
+

@@ -23,8 +23,7 @@ describe PeevesGateway do
                       :transaction_reference => Peeves::UniqueId.generate("TEST"),
                       :description           => "Test Transaction",
                       :notification_url      => "http://test.example.com",
-                      :billing_data          => customer_data,
-                      :delivery_data         => customer_data
+                      :customer_data         => {:billing => customer_data, :delivery =>customer_data} ,
                     })
     end
     

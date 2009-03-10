@@ -1,6 +1,6 @@
 module Peeves
   module Config
-    VENDOR = "xinzheng"
-    GATEWAY_MODE = :simulator
+    mattr_accessor :vendor
+    mattr_accessor :gateway_mode
   end
 end

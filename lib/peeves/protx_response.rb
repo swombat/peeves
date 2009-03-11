@@ -44,7 +44,7 @@ module Peeves
       # TODO: Make this work, currently fails all
       md5 = Digest::MD5.new
       md5 << "#{self.vps_transaction_id}#{self.transaction_reference}#{self.status}#{self.transaction_authorisation_number}" +
-      "#{Peeves::Config::VENDOR}#{self.avs_cv2_result}#{self.security_key}#{self.address_result}#{self.post_code_result}" +
+      "#{Peeves::Config.vendor}#{self.avs_cv2_result}#{self.security_key}#{self.address_result}#{self.post_code_result}" +
       "#{self.cv2_result}#{self.gift_aid}#{self.status_3d_secure}#{self.code_3d_secure}"
       
       raise Peeves::Error, "MD5 appears to have been tampered with! (#{md5.hexdigest} != #{self.vps_signature})" unless md5.hexdigest == self.vps_signature

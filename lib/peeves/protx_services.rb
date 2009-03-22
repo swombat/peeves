@@ -20,28 +20,28 @@ module Peeves
         :cancel       => '?Service=VendorCancelTx'
       },
       :test => {
-        :payment      => 'vspserver-register.vsp',
-        :release      => 'release.vsp',
-        :abort        => 'abort.vsp',
-        :refund       => 'refund.vsp',
-        :repeat       => 'repeat.vsp',
-        :void         => 'void.vsp',
-        :manual       => 'manual.vsp',
-        :directrefund => 'directrefund.vsp',
-        :authorise    => 'authorise.vsp',
-        :cancel       => 'cancel.vsp'
+        :payment      => '/vspserver-register.vsp',
+        :release      => '/release.vsp',
+        :abort        => '/abort.vsp',
+        :refund       => '/refund.vsp',
+        :repeat       => '/repeat.vsp',
+        :void         => '/void.vsp',
+        :manual       => '/manual.vsp',
+        :directrefund => '/directrefund.vsp',
+        :authorise    => '/authorise.vsp',
+        :cancel       => '/cancel.vsp'
       },
       :live => {
-        :payment      => 'vspserver-register.vsp',
-        :release      => 'release.vsp',
-        :abort        => 'abort.vsp',
-        :refund       => 'refund.vsp',
-        :repeat       => 'repeat.vsp',
-        :void         => 'void.vsp',
-        :manual       => 'manual.vsp',
-        :directrefund => 'directrefund.vsp',
-        :authorise    => 'authorise.vsp',
-        :cancel       => 'cancel.vsp'
+        :payment      => '/vspserver-register.vsp',
+        :release      => '/release.vsp',
+        :abort        => '/abort.vsp',
+        :refund       => '/refund.vsp',
+        :repeat       => '/repeat.vsp',
+        :void         => '/void.vsp',
+        :manual       => '/manual.vsp',
+        :directrefund => '/directrefund.vsp',
+        :authorise    => '/authorise.vsp',
+        :cancel       => '/cancel.vsp'
       }
     }
   end

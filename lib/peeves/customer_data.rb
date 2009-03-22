@@ -8,5 +8,9 @@ module Peeves
         send("#{h.to_s}=", v)
       end
     end
+    
+    def [](arg)
+      send("#{arg}")
+    end
   end
 end

@@ -1,17 +1,114 @@
-h1. Protx VSP Server
+h1. Peeves - PVS - Protx VSP Server
 
 h2. Introduction
 
+Peeves is a library for accessing the Protx VSP Server. Its patterns are loosely modeled on "ActiveMerchant":http://www.activemerchant.org/, for clarity (unfortunately AM doesn't support the VSP Server mode of operation). Peeves was built for an application called "Woobius":https://www.woobius.com, but is released free of charge (and free of any warranties) to the community in the hope that it will be useful.
+
+Using the Protx VSP Server enables you to not have to host payment pages on your own site. You initiate a transaction, then forward the user to the page returned by Protx, and the rest is handled off-site. This has many benefits, in particular not needing to implement credit card validation pages yourself, not needing to handle credit card numbers directly (which means that you're automatically PCI-DSS compliant), and not needing to deal with 3D-secure yourself.
+
 Protx is an UK payment gateway. You can find more information on their VPS Server service "here":http://techsupport.protx.com/vspservercustom.asp.
 
-h2. Setup and Installation
+h2. Licence
 
-Edit <code>lib/peeves/config.rb</code> with your *vendor name*.
+The initial version of Peeves was written from scratch by Daniel Tenner. It is loosely based on ActiveMerchant's patterns, but all code is original, and is licenced under the "Apache Licence":http://www.oss-watch.ac.uk/resources/apache2.xml.
 
-Test it by running
+As a user, this means you can effectively use Peeves for whatever you want so long as you agree not to sue people about it.
+
+As a contributor, it means that you licence to Peeves any contributions that you make as per the Apache licence.
+
+h2. Kicking the tyres
+
+After setting up your IP address in the VSP Simulator, and obtaining a valid simulator vendor name, temporarily edit <code>simulate.rb</code> with your *vendor name* and run:
+
 <pre>
-<code>
-ruby simulate.rb
-</code>
+	ruby simulate.rb
 </pre>
 
+Everything should work. If it doesn't work, try asking me (swombat) for help on freenode, channel #flails.
+
+Assuming everything worked fine, revert your change to simulate.rb.
+
+h2. Usage
+
+h3. Configuration
+
+In each environment file, you want to do something like this:
+
+<pre>
+	PEEVES_VENDOR           = "woobius"
+	PEEVES_GATEWAY_MODE     = :simulator
+</pre>
+
+The gateway mode can be set to <code>:simulator</code>, <code>:test</code>, or <code>:live</code>.
+
+Then, in environment.rb, do:
+
+<pre>
+	Peeves::Config.vendor 		= PEEVES_VENDOR
+	Peeves::Config.gateway_mode = PEEVES_GATEWAY_MODE
+</pre>
+
+h3. Making a request
+
+As per <code>simulate.rb</code>:
+
+<pre>
+	transaction_reference = Peeves::UniqueId.generate("TEST")
+	customer_data = Peeves::CustomerData.new(:surname => 'blah',
+	                                         :firstnames => 'blah',
+	                                         :address1 => 'blah',
+	                                         :address2 => 'blah',
+	                                         :city => 'blah',
+	                                         :post_code => 'blah',
+	                                         :country => 'gb',
+	                                         :email => 'customer@email.com'
+	                                        )
+
+	# Payment registration
+	payment_response = p.payment(Peeves::Money.new(1000, "GBP"),
+	              {
+	                :transaction_reference => transaction_reference,
+	                :description           => "Test Transaction",
+	                :notification_url      => "http://callback.example.com/process_stuff",
+	                :customer_data         => { :billing  => customer_data,
+	                                            :delivery => customer_data,
+	                                            :email    => customer_data.email }
+	              })
+</pre>
+
+This will register a payment and return a url that you should forward the user to.
+
+Once the user has made the payment on the Protx VSP Server pages, you will receive a callback at the URL you defined as <code>:notification_url</code>. You should call something like the following on the parameters that you receive back:
+
+<pre>
+	def record_response_params(params)
+    returning PeevesGateway.parse_notification(params) do |response|
+      self.update_attributes(
+        :last_status                          => response.status,
+        :last_status_detail                   => response.last_status_detail,
+        :vps_transaction_id                   => response.vps_transaction_id,
+        :transaction_authorisation_number     => response.transaction_authorisation_number,
+        :status_3d_secure                     => response.status_3d_secure,
+        :code_3d_secure                       => response.code_3d_secure
+      )
+    end    
+  end
+</pre>
+
+In response to this, you must send back a success message or the transaction will eventually be cancelled by Protx:
+
+<pre>
+	render :text => PeevesGateway.response(PeevesGateway::APPROVED, url, "Payment succeeded")
+</pre>
+
+Protx will then forward the user to <code>url</code>, where you can display a happy success page.
+
+h3. Keeping abreast of changes
+
+I've just started a changelog - see "CHANGES.textile":http://github.com/swombat/peeves/tree/master/CHANGES.textile.
+
+h2. Contributing back
+
+Please use the fork functionality on github to make a fork and then push back your changes to the fork queue. I will probably accept most useful changes, but it might take me a few days before I get around to it!
+
+Thanks!

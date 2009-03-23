@@ -27,7 +27,7 @@ class PeevesGateway
     "NOTMATCHED" => 'N'
   }
     
-  def initialize(mode=Peeves::Config::GATEWAY_MODE)
+  def initialize(mode=Peeves::Config.gateway_mode)
     @mode = mode
   end
   
@@ -274,7 +274,7 @@ private
     @post = Peeves::PostData.new
     @post["TxType"]         = type
     @post["VPSProtocol"]    = VPS_PROTOCOL
-    @post["Vendor"]         = Peeves::Config::VENDOR
+    @post["Vendor"]         = Peeves::Config.vendor
   end
 
   def add_post_processing(options)

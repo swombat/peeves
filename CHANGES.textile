@@ -1,0 +1,6 @@
+h1. Changelog for Peeves
+
+2009-03-23: 
+	- Switched configuration to use <code>mattr_accessor</code> instead of constants
+	- Updated <code>simulate.rb</code> to contain configuration, instead of <code>lib/peeves/config.rb</code>
+	- Updated README.

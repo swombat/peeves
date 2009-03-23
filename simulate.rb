@@ -1,12 +1,16 @@
 require 'rubygems'
 require 'activesupport'
 
-# require 'ruby-debug'
-
 $LOAD_PATH << "lib"
-
 ActiveSupport::Dependencies.load_paths = $LOAD_PATH
 
+
+# EDIT THIS BEFORE RUNNING:
+Peeves::Config.vendor = "woobius"
+# END
+
+
+Peeves::Config.gateway_mode = :simulator
 p = PeevesGateway.new(:simulator)
 
 transaction_reference = Peeves::UniqueId.generate("TEST")

@@ -56,6 +56,8 @@ class PeevesGateway
   # => security_key
   # => next_url
   def payment(money, options)
+    log "payment", options
+    
     add_common TRANSACTIONS[:payment]
     add_registration(money, options)
     add_customer(options)
@@ -82,6 +84,8 @@ class PeevesGateway
   # => security_key
   # => next_url
   def authenticate(money, options)
+    log "authenticate", options
+    
     add_common(TRANSACTIONS[:authenticate])
     add_registration(money, options)
     add_customer(options)
@@ -109,6 +113,8 @@ class PeevesGateway
   # => security_key
   # => next_url
   def deferred(money, options)
+    log "deferred", options
+    
     add_common TRANSACTIONS[:deferred]
     add_registration(money, options)
     add_customer(options)
@@ -132,6 +138,8 @@ class PeevesGateway
   # => transaction_authorisation_number
   # => security_key
   def repeat(money, options)
+    log "repeat", options
+    
     add_common(TRANSACTIONS[:repeat])
     add_related(options)
     add_registration(money, options)
@@ -157,6 +165,8 @@ class PeevesGateway
   # => post_code_result
   # => cv2_result
   def authorise(money, options)
+    log "authorise", options
+    
     add_common TRANSACTIONS[:authorise]
     add_related(options)
     add_registration(money, options)
@@ -173,6 +183,8 @@ class PeevesGateway
   # => status
   # => status_detail
   def cancel(options)
+    log "cancel", options
+    
     add_common TRANSACTIONS[:cancel]
     add_post_processing(options)
     
@@ -189,6 +201,8 @@ class PeevesGateway
   # => status
   # => status_detail
   def release(money, options)
+    log "release", options
+    
     add_common TRANSACTIONS[:release]
     add_post_processing(options)
     @post["ReleaseAmount"]        = "%.2f" % money.amount
@@ -206,6 +220,8 @@ class PeevesGateway
   # => status
   # => status_detail
   def void(options)
+    log "void", options
+    
     add_common(TRANSACTIONS[:void])
     add_post_processing(options)
     
@@ -223,6 +239,8 @@ class PeevesGateway
   # => status
   # => status_detail
   def abort(options)
+    log "abort", options
+    
     add_common(TRANSACTIONS[:abort])
     add_post_processing(options)
     
@@ -243,6 +261,8 @@ class PeevesGateway
   # => vps_transaction_id
   # => transaction_authorisation_number
   def refund(money, options)
+    log "refund", options
+    
     add_common(TRANSACTIONS[:refund])
     add_related(options)
     add_registration(money, options)
@@ -340,6 +360,10 @@ private
     unless options[:basket].nil?
       @post["Basket"]             = options[:basket].to_post_data
     end
+  end
+  
+  def log(method, options)
+    RAILS_DEFAULT_LOGGER.debug "Called #{method} with options #{options.inspect}"
   end
 
   def requires!(hash, *params)

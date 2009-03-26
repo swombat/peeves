@@ -103,9 +103,38 @@ In response to this, you must send back a success message or the transaction wil
 
 Protx will then forward the user to <code>url</code>, where you can display a happy success page.
 
+h3. Repeat transactions
+
+Protx VSP Server wouldn't be worth much without repeat transactions. Here's an example of how to use them (this code sits on an Invoice class in Woobius):
+
+<pre>
+  def pay_from(previous_invoice)
+    response = PeevesGateway.new.repeat(Peeves::Money.new(self.currency_amount, self.currency),
+      {
+        :transaction_reference                    => self.reference,
+        :description                              => self.description,
+        :related_transaction_reference            => previous_invoice.reference,
+        :related_vps_transaction_id               => previous_invoice.vps_transaction_id,
+        :related_security_key                     => previous_invoice.security_key,
+        :related_transaction_authorisation_number => previous_invoice.transaction_authorisation_number
+      })
+    self.update_attributes(
+      :last_status              => response.status,
+      :last_status_detail       => response.status_detail,
+      :vps_transaction_id       => response.vps_transaction_id,
+      :security_key             => response.security_key
+    )
+    if response.approved?
+      self.paid!
+    end
+
+    response
+  end
+</pre>
+
 h3. Keeping abreast of changes
 
-I've just started a changelog - see "CHANGES.textile":http://github.com/swombat/peeves/tree/master/CHANGES.textile.
+Things might change. If you pull the latest version of Peeves and something doesn't work, check the changelog: "CHANGES.textile":http://github.com/swombat/peeves/tree/master/CHANGES.textile.
 
 h2. Contributing back
 

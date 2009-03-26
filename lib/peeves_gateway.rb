@@ -311,7 +311,7 @@ private
     @post["RelatedVendorTxCode"]         = options[:related_transaction_reference][0..39]
     @post["RelatedVPSTxId"]              = options[:related_vps_transaction_id][0..37]
     @post["RelatedSecurityKey"]          = options[:related_security_key][0..9]
-    @post["RelatedTxAuthNo"]             = options[:related_transaction_authorisation_number] unless options[:transaction_authorisation_number].nil?    
+    @post["RelatedTxAuthNo"]             = options[:related_transaction_authorisation_number] unless options[:related_transaction_authorisation_number].nil?
   end
   
   def add_registration(money, options)

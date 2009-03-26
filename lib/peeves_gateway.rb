@@ -266,6 +266,9 @@ private
   end
 
   def commit!(action)
+    RAILS_DEFAULT_LOGGER.debug  "Sending Protx post to #{url_for(action)}:\n" +
+                                "Post: #{@post.inspect}\n" +
+                                "Post data: #{@post.to_post_data}"
     response = Peeves::Net::HttpsGateway.new(url_for(action), true, debug?).send({}, @post.to_post_data)
     Peeves::ProtxResponse.new(response)
   end

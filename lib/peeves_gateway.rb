@@ -4,6 +4,7 @@ class PeevesGateway
   include Peeves::ProtxServices
     
   APPROVED = 'OK'
+  INVALID = 'INVALID'
   
   VPS_PROTOCOL = "2.23"
   

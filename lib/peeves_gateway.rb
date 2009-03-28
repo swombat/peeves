@@ -3,8 +3,12 @@ require 'cgi'
 class PeevesGateway
   include Peeves::ProtxServices
     
-  APPROVED = 'OK'
-  INVALID = 'INVALID'
+  APPROVED  = 'OK'
+  INVALID   = 'INVALID'
+  NOTAUTHED = 'NOTAUTHED'
+  ABORT     = 'ABORT'
+  REJECTED  = 'REJECTED'
+  ERROR     = 'ERROR'
   
   VPS_PROTOCOL = "2.23"
   

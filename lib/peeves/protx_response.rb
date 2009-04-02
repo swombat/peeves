@@ -1,6 +1,7 @@
 module Peeves
   class ProtxResponse
     def initialize(response)
+      RAILS_DEFAULT_LOGGER.debug "Protx response: #{response}"
       @response = response
       if @response.is_a?(String)
         response.split("\r\n").each do |line|

@@ -3,7 +3,7 @@ module Peeves
     BASE_URL = {
       :simulator  => 'https://ukvpstest.protx.com/VSPSimulator/VSPServerGateway.asp',
       :test       => 'https://ukvpstest.protx.com/vspgateway/service',
-      :live       => 'https://ukvps.protx.com/vspgateway/service'
+      :live       => 'https://ukvpstest.protx.com/showpost/'
     }
 
     SERVICE = {
@@ -32,7 +32,7 @@ module Peeves
         :cancel       => '/cancel.vsp'
       },
       :live => {
-        :payment      => '/vspserver-register.vsp',
+        :payment      => 'showpost.vsp',
         :release      => '/release.vsp',
         :abort        => '/abort.vsp',
         :refund       => '/refund.vsp',

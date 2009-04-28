@@ -1,7 +1,7 @@
 module Peeves
   module ProtxServices
     BASE_URL = {
-      :simulator  => 'https://https://test.sagepay.com/simulator/VSPServerGateway.asp',
+      :simulator  => 'https://test.sagepay.com/simulator/VSPServerGateway.asp',
       :test       => 'https://test.sagepay.com/gateway/service',
       :live       => 'https://live.sagepay.com/gateway/service'
     }

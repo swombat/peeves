@@ -292,9 +292,12 @@ private
   end
 
   def commit!(action)
-    RAILS_DEFAULT_LOGGER.debug  "Sending Protx post to #{url_for(action)}:\n" +
+    if Module.const_defined?(:Rails)
+      Rails.logger.debug  "Sending Protx post to #{url_for(action)}:\n" +
                                 "Post: #{@post.inspect}\n" +
-                                "Post data: #{@post.to_post_data}"
+                                "Post data: #{@post.to_post_data}" 
+    end
+
     response = Peeves::Net::HttpsGateway.new(url_for(action), true, debug?).send({}, @post.to_post_data)
     Peeves::ProtxResponse.new(response)
   end
@@ -373,7 +376,7 @@ private
   end
   
   def log(method, options)
-    RAILS_DEFAULT_LOGGER.debug "Called #{method} with options #{options.inspect}"
+    Rails.logger.debug "Called #{method} with options #{options.inspect}" if Module.const_defined?(:Rails)
   end
 
   def requires!(hash, *params)

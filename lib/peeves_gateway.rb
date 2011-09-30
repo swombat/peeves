@@ -61,6 +61,7 @@ class PeevesGateway
   # => security_key
   # => next_url
   def payment(money, options)
+    # TODO check parameters in options to avoid cryptic error messages later
     log "payment", options
     
     add_common TRANSACTIONS[:payment]
@@ -343,8 +344,10 @@ private
       @post["BillingAddress1"]    = options[:billing].address1
       @post["BillingAddress2"]    = options[:billing].address2
       @post["BillingCity"]        = options[:billing].city
+      @post["BillingState"]       = options[:billing].state
       @post["BillingPostCode"]    = options[:billing].post_code
       @post["BillingCountry"]     = options[:billing].country
+      @post["BillingPhone"]       = options[:billing].phone
     end
   end
 
@@ -356,8 +359,10 @@ private
       @post["DeliveryAddress1"]    = options[:delivery].address1
       @post["DeliveryAddress2"]    = options[:delivery].address2
       @post["DeliveryCity"]        = options[:delivery].city
+      @post["DeliveryState"]       = options[:delivery].state
       @post["DeliveryPostCode"]    = options[:delivery].post_code
       @post["DeliveryCountry"]     = options[:delivery].country
+      @post["DeliveryPhone"]       = options[:delivery].phone
     end
   end
   

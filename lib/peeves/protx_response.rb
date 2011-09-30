@@ -24,9 +24,9 @@ module Peeves
       @values ||= {}
 
       case id[-1]
-        when 61: # :blah=
+        when 61
           @values[id[0..-2].to_sym] = args[0]
-        when 63: # :blah?
+        when 63
           @values.has_key?(id[0..-2].to_sym)
         else # :blah
           @values[id.to_sym]

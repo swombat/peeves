@@ -1,12 +1,13 @@
-require 'rubygems'
-require 'activesupport'
+# require 'rubygems'
+# require 'activesupport'
+require File.expand_path(File.dirname(__FILE__) + "/../../../config/environment")
 
 $LOAD_PATH << "lib"
 ActiveSupport::Dependencies.load_paths = $LOAD_PATH
 
 
 # EDIT THIS BEFORE RUNNING:
-Peeves::Config.vendor = "woobius"
+Peeves::Config.vendor = "xinzheng"
 # END
 
 
@@ -42,16 +43,17 @@ puts payment_response.inspect
 # A3: Notification of Results for Transactions
 #
 # Repeat payment registration
-# repeat_response = p.repeat(Peeves::Money.new(1000, "GBP"),
-#              {
-#                :transaction_reference => Peeves::UniqueId.generate("TEST"),
-#                :description           => "Test Repeat Transaction",
-#                :notification_url      => "http://test.example.com",
-#                :related_transaction_reference  => transaction_reference,
-#                :related_vps_transaction_id     => payment_response[:vps_transaction_id],
-#                :related_security_key           => payment_response[:security_key],
-#                :related_transaction_authorisation_number => "1213121212"
-#              })
+repeat_response = p.repeat(Peeves::Money.new(1000, "GBP"),
+              {
+                :transaction_reference => Peeves::UniqueId.generate("TEST"),
+                :description           => "Test Repeat Transaction",
+                :notification_url      => "http://test.example.com",
+                :related_transaction_reference  => transaction_reference,
+                :related_vps_transaction_id     => payment_response[:vps_transaction_id],
+                :related_security_key           => payment_response[:security_key],
+                # :related_transaction_authorisation_number => "1213121212"
+                :related_transaction_authorisation_number => "0"
+              })
 #
 # puts repeat_response
 

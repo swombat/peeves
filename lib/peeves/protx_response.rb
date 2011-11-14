@@ -23,7 +23,7 @@ module Peeves
       id = id.to_s
       @values ||= {}
 
-      case id[-1]
+      case id[-1].ord
         when 61
           @values[id[0..-2].to_sym] = args[0]
         when 63

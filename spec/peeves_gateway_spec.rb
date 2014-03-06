@@ -1,4 +1,4 @@
-require 'spec/spec_helper'
+require './spec/spec_helper'
 
 describe PeevesGateway do
 
@@ -9,14 +9,14 @@ describe PeevesGateway do
   
   describe "sending a payment request" do
     before(:each) do
-      customer_data = Peeves::CustomerData.new(:surname => 'blah',
-                                         :firstnames => 'blah',
-                                         :address1 => 'blah',
-                                         :address2 => 'blah',
-                                         :city => 'blah',
-                                         :post_code => 'blah',
-                                         :country => 'gb'
-                                        )
+      customer_data = Peeves::CustomerData.new(:surname	=> 'blah',
+                                               :firstnames => 'blah',
+                                               :address1 => 'blah',
+                                               :address2 => 'blah',
+                                               :city => 'blah',
+                                               :post_code => 'blah',
+                                               :country => 'gb'
+                                              )
 
       @response = @p.payment(Peeves::Money.new(1000, "GBP"),
                     {

@@ -61,6 +61,7 @@ class PeevesGateway
   # => security_key
   # => next_url
   def payment(money, options)
+    # TODO check parameters in options to avoid cryptic error messages later
     log "payment", options
     
     add_common TRANSACTIONS[:payment]
@@ -291,9 +292,12 @@ private
   end
 
   def commit!(action)
-    RAILS_DEFAULT_LOGGER.debug  "Sending Protx post to #{url_for(action)}:\n" +
+    if Module.const_defined?(:Rails)
+      Rails.logger.debug  "Sending Protx post to #{url_for(action)}:\n" +
                                 "Post: #{@post.inspect}\n" +
-                                "Post data: #{@post.to_post_data}"
+                                "Post data: #{@post.to_post_data}" 
+    end
+
     response = Peeves::Net::HttpsGateway.new(url_for(action), true, debug?).send({}, @post.to_post_data)
     Peeves::ProtxResponse.new(response)
   end
@@ -343,8 +347,10 @@ private
       @post["BillingAddress1"]    = options[:billing].address1
       @post["BillingAddress2"]    = options[:billing].address2
       @post["BillingCity"]        = options[:billing].city
+      @post["BillingState"]       = options[:billing].state
       @post["BillingPostCode"]    = options[:billing].post_code
       @post["BillingCountry"]     = options[:billing].country
+      @post["BillingPhone"]       = options[:billing].phone
     end
   end
 
@@ -356,8 +362,10 @@ private
       @post["DeliveryAddress1"]    = options[:delivery].address1
       @post["DeliveryAddress2"]    = options[:delivery].address2
       @post["DeliveryCity"]        = options[:delivery].city
+      @post["DeliveryState"]       = options[:delivery].state
       @post["DeliveryPostCode"]    = options[:delivery].post_code
       @post["DeliveryCountry"]     = options[:delivery].country
+      @post["DeliveryPhone"]       = options[:delivery].phone
     end
   end
   
@@ -368,7 +376,7 @@ private
   end
   
   def log(method, options)
-    RAILS_DEFAULT_LOGGER.debug "Called #{method} with options #{options.inspect}"
+    Rails.logger.debug "Called #{method} with options #{options.inspect}" if Module.const_defined?(:Rails)
   end
 
   def requires!(hash, *params)

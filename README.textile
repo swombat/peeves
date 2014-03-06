@@ -1,5 +1,9 @@
 h1. Peeves - PVS - Protx VSP Server
 
+h2. About this Fork
+
+This fork is Ruby 1.9.2 compatible.
+
 h2. Introduction
 
 Peeves is a library for accessing the Protx VSP Server. Its patterns are loosely modeled on "ActiveMerchant":http://www.activemerchant.org/, for clarity (unfortunately AM doesn't support the VSP Server mode of operation). Peeves was built for an application called "Woobius":https://www.woobius.com, but is released free of charge (and free of any warranties) to the community in the hope that it will be useful.

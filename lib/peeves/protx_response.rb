@@ -1,7 +1,8 @@
 module Peeves
   class ProtxResponse
     def initialize(response)
-      RAILS_DEFAULT_LOGGER.debug "Protx response: #{response}"
+      Rails.logger.debug "Protx response: #{response}" if Module.const_defined?(:Rails)
+
       @response = response
       if @response.is_a?(String)
         response.split("\r\n").each do |line|
@@ -22,10 +23,10 @@ module Peeves
       id = id.to_s
       @values ||= {}
 
-      case id[-1]
-        when 61: # :blah=
+      case id[-1].ord
+        when 61
           @values[id[0..-2].to_sym] = args[0]
-        when 63: # :blah?
+        when 63
           @values.has_key?(id[0..-2].to_sym)
         else # :blah
           @values[id.to_sym]
